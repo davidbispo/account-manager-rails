@@ -1,0 +1,38 @@
+version: "3"
+services:
+  db:
+    image: postgres:13.11-alpine
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_DB: account_manager
+      POSTGRES_USER: app_account_manager
+      POSTGRES_PASSWORD: app_account_manager
+      PG_USER: app_account_manager
+      PG_PASSWORD: app_account_manager
+    volumes:
+      - account_manager_postgres:/var/lib/postgresql/data
+  api:
+    stdin_open: true
+    # tty: true
+    restart: always
+    working_dir: /app
+    build: .
+    entrypoint: /app/entrypoint.sh
+    volumes:
+      - .:/app
+      - ~/.bash_history:/root/.bash_history
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+    environment:
+      RACK_TIMEOUT_SERVICE_TIMEOUT: 120
+      PG_HOST: db
+      POSTGRES_USER: app_account_manager
+      POSTGRES_PASSWORD: app_account_manager
+      PG_USER: app_account_manager
+      PG_PASSWORD: app_account_manager
+
+volumes:
+  account_manager_postgres:

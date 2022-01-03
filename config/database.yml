@@ -1,0 +1,22 @@
+default: &default
+  adapter: postgresql
+  template: template0
+  encoding: unicode
+  pool: <%= ENV.fetch("RAILS_MAX_THREADS") { 10 } %>
+  timeout: 10000
+  username: app_account_manager
+  password: app_account_manager
+  host: <%= ENV['PG_HOST'] || 'localhost' %>
+  port: 5432
+
+development:
+  <<: *default
+  database: account_manager
+
+test:
+  <<: *default
+  database: account_manager_test
+
+production:
+  <<: *default
+  database: account_manager_production
