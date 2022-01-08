@@ -2,6 +2,7 @@
 rm -f tmp/pids/server.pid
 
 bundle check > /dev/null 2>&1 || bundle install --local
+RAILS_ENV=test bundle exec rake db:setup
 
 if [ "$#" == 0 ]
 then
