@@ -6,6 +6,11 @@ RSpec.describe EventsController, type: :controller do
       get :create, params: body
     end
 
+    context "information is incorrect" do
+      let (:body) { { type: "potato", color: "yellow", size: 10 } }
+      it { expect(response).to have_http_status(:not_acceptable) }
+    end
+
     context "information is correct" do
       context "and account does not exist" do
         let(:body) { { type: "deposit", destination: 100, amount: 10 } }
@@ -13,37 +18,120 @@ RSpec.describe EventsController, type: :controller do
         it { expect(response).to have_http_status(:created) }
 
         it "expects body to match template" do
-          expect(JSON.parse(response.body)).to match(expected_echo_create)
+          expect(JSON.parse(response.body)).to match(successful_create_response)
         end
 
       end
       context "and account exists" do
-        let!(:account) { create(:account, balance:10) }
+        let!(:account) { create(:account, balance: 10) }
 
         let(:body) { { type: "deposit", destination: account.id, amount: 10 } }
 
-        it { expect(response).to have_http_status(:created)  }
+        it { expect(response).to have_http_status(:created) }
 
         it "expects body to match template" do
-          expect(JSON.parse(response.body)).to match(expected_echo_deposit(account.id))
+          expect(JSON.parse(response.body)).to match(successful_deposit_response(account.id))
         end
       end
     end
+  end
 
-    context "information is incorrect" do
-      let (:body) { { type: "potato", color: "yellow", size: 10 } }
-      it { expect(response).to have_http_status(:not_acceptable) }
+  context 'transfer between accounts' do
+    context "and account exists" do
+      before do
+        let!(:origin_account) { create(:account, balance: 15) }
+        let!(:destination_account) { create(:account, balance: 10) }
+
+        payload = {
+          "type" => "transfer",
+          "origin" => origin_account.id.to_s,
+          "amount": 15,
+          "destination" => destination_account.id.to_s
+        }
+        post("/event", params: payload)
+      end
+
+      it "expects a correct response from the API" do
+        it { expect(response).to have_http_status(:created) }
+      end
+
+      it "expects body to match template" do
+        expect(JSON.parse(response.body)).to match(expected_echo_transfer_success(origin_account.id, destination_account.id))
+      end
+    end
+
+    context "and origin account does not exist" do
+      let (:payload) { { "type" => "transfer", "origin" => "9999", "amount": 15, "destination" => "303" } }
+      before do
+        post("/event", params: payload)
+      end
+
+      it "expects body to match template" do
+        expect(response.body).eq eq('0')
+      end
+
+      it { expect(response).to have_http_status(:not_found) }
+    end
+
+    def expected_echo_transfer_success(origin_account_id, destination_account_id)
+      {
+        "origin" => {
+          "id" => origin_account_id.to_s,
+          "balance" => 0
+        },
+        "destination" =>
+          { "id" => destination_account_id.to_s,
+            "balance" => 15
+          }
+      }
     end
   end
 
-  def expected_echo_create
+  context 'withdrawal from account' do
+    before do
+      let!(:account) { create(:account, balance: 20) }
+      let(:payload) { { "type" => "withdraw", "origin" => account.id, "amount": 5 } }
+      post("/event", params: payload)
+    end
+
+    context "and account exists" do
+      it "expects a correct response from the API" do
+        it { expect(response).to have_http_status(:created) }
+      end
+
+      it "expects body to match template" do
+        expect(JSON.parse(response.body)).to match(response_template)
+      end
+    end
+
+    context "and account does not exist" do
+      let (:payload) { { "type" => "withdraw", "origin" => "-50", "amount": 5 } }
+      before do
+        post("/event", params: payload)
+      end
+      it { expect(response).to have_http_status(:created) }
+      it { expect(response.body).eq eq('0') }
+    end
+
+    def successful_withdrawal_response(account_id)
+      {
+        "origin" =>
+          {
+            "id" => account_id.to_s,
+            "balance" => 15
+          }
+      }
+    end
+  end
+
+  def successful_create_response
     { "destination" =>
         { "id" => "100",
           "balance" => 10 }
     }
   end
 
-  def expected_echo_deposit(account_id)
+  def successful_deposit_response(account_id)
     {
       "destination" =>
         { "id" => account_id.to_s,
