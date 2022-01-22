@@ -12,7 +12,7 @@ RSpec.describe EventsController, type: :controller do
     end
 
     context "information is correct" do
-      context "and account does not exist" do
+      context "and accounts does not exist" do
         let(:body) { { type: "deposit", destination: 100, amount: 10 } }
 
         it { expect(response).to have_http_status(:created) }
@@ -22,7 +22,7 @@ RSpec.describe EventsController, type: :controller do
         end
 
       end
-      context "and account exists" do
+      context "and accounts exists" do
         let!(:account) { create(:account, balance: 10) }
 
         let(:body) { { type: "deposit", destination: account.id, amount: 10 } }
@@ -37,7 +37,7 @@ RSpec.describe EventsController, type: :controller do
   end
 
   context 'transfer between accounts' do
-    context "and account exists" do
+    context "and accounts exists" do
       before do
         let!(:origin_account) { create(:account, balance: 15) }
         let!(:destination_account) { create(:account, balance: 10) }
@@ -60,7 +60,7 @@ RSpec.describe EventsController, type: :controller do
       end
     end
 
-    context "and origin account does not exist" do
+    context "and origin accounts does not exist" do
       let (:payload) { { "type" => "transfer", "origin" => "9999", "amount": 15, "destination" => "303" } }
       before do
         post("/event", params: payload)
@@ -87,14 +87,14 @@ RSpec.describe EventsController, type: :controller do
     end
   end
 
-  context 'withdrawal from account' do
+  context 'withdrawal from accounts' do
     before do
       let!(:account) { create(:account, balance: 20) }
       let(:payload) { { "type" => "withdraw", "origin" => account.id, "amount": 5 } }
       post("/event", params: payload)
     end
 
-    context "and account exists" do
+    context "and accounts exists" do
       it "expects a correct response from the API" do
         it { expect(response).to have_http_status(:created) }
       end
@@ -104,7 +104,7 @@ RSpec.describe EventsController, type: :controller do
       end
     end
 
-    context "and account does not exist" do
+    context "and accounts does not exist" do
       let (:payload) { { "type" => "withdraw", "origin" => "-50", "amount": 5 } }
       before do
         post("/event", params: payload)

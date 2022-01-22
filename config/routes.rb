@@ -1,3 +1,3 @@
 Rails.application.routes.draw do
-  post '/events', to: 'events#create'
+  post '/strategies', to: 'events#create'
 end

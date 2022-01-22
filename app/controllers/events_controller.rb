@@ -1,10 +1,6 @@
 class EventsController < ApplicationController
   def create
-    return render json: {
-      "destination" =>
-        { "id" => params[:destination],
-          "balance" => params[:amount].to_f
-        }
-    }, status: :created
+    response,status = Services::Events::ResolveEventService.new(params).resolve
+    render json: response, status: status
   end
 end
