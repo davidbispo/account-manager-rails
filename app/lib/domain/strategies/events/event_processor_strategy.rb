@@ -1,7 +1,7 @@
 module Strategies
   module Events
     class EventProcessorStrategy
-      def resolve
+      def execute
         raise NotImplementedError
       end
 

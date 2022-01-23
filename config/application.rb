@@ -23,7 +23,6 @@ module AccountManagerRails
   class Application < Rails::Application
     config.load_defaults 6.1
     config.autoload_paths += Dir[Rails.root.join('app', 'lib', '*')]
-    config.eager_load_paths += Dir[Rails.root.join('app', 'lib', '*')]
     config.api_only = true
   end
 end

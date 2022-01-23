@@ -11,7 +11,7 @@ module Services
       def resolve
         Strategies::Events::EventProcessorStrategy.descendants.each do |strategy|
           if strategy.should_run_for?(event_type)
-            return strategy.new(execution_params).resolve.response
+            return strategy.new(execution_params).execute.response
           end
         end
         raise ArgumentError, 'Invalid event type for Event Processor Strategy Resolution'

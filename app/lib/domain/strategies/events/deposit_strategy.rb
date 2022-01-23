@@ -13,12 +13,12 @@ module Strategies
         self
       end
 
-      def resolve
+      def execute
         account = ::Account.find(account_id)
         unless account
-          Accounts::Services::CreateAccountService.new.perform(account_id, amount)
+          Accounts::Services::CreateAccountService.new(account_id: account_id, balance: amount).perform
         end
-        @result = Accounts::Services::DepositToAccountService.new.perform(account_id: account_id, amount: amount)
+        @result = Accounts::Services::DepositToAccountService.new(account_id: account_id, amount: amount).perform
         self
       end
 

@@ -1,7 +1,8 @@
 module Accounts
   module Services
     class TransferBetweenAccountsService
-      def initialize(args)
+      attr_reader :origin_account_id, :destination_account_id, :amount
+      def initialize(origin_account_id:, destination_account_id:, amount:)
 
       end
 

@@ -11,16 +11,14 @@ module Strategies
         @origin_account_id = args["origin_account_id"]
         @destination_account_id = args["destination_account_id"]
         @amount = args["amount"]
-        self
       end
 
-      def resolve
+      def execute
         @result = Accounts::Services::TransferBetweenAccountsService.new(
           origin_account_id: origin_account_id,
           destination_account_id: destination_account_id,
           amount: amount,
         ).perform
-        self
       end
 
       def response

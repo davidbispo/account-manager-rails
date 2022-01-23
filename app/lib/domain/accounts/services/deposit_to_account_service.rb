@@ -1,7 +1,11 @@
 module Accounts
   module Services
     class DepositToAccountService
-      def perform(account_id:, amount:)
+      def initialize(account_id:, amount:)
+
+      end
+
+      def perform
 
       end
     end

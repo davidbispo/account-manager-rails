@@ -10,12 +10,11 @@ module Strategies
       end
 
       def initialize(args)
-        @account_id = args["account_id"]
+        @account_id = args["origin"]
         @amount = args["amount"]
-        self
       end
 
-      def resolve
+      def execute
         @result = Accounts::Services::WithdrawFromAccountService.new.perform(
           account_id: account_id,
           amount: amount
@@ -25,7 +24,7 @@ module Strategies
 
       def response
         if result
-          res = { status: 200, result: result.to_json }
+          res = { status: 200, result: result }
         else
           res = { status: 500, result: 'error' }
         end

@@ -2,7 +2,11 @@ module Accounts
   module Services
 
     class CreateAccountService
-      def perform(account_id, balance)
+      def initialize(account_id:, balance:)
+
+      end
+
+      def perform
 
       end
     end
