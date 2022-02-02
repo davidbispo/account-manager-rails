@@ -15,7 +15,7 @@ module Strategies
       end
 
       def execute
-        @result = Accounts::Services::WithdrawFromAccountService.new.perform(
+        @result = Services::Accounts::WithdrawFromAccountService.new.perform(
           account_id: account_id,
           amount: amount
         )

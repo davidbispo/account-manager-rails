@@ -16,8 +16,8 @@ RSpec.describe Strategies::Events::DepositStrategy do
       "amount" => amount,
     }.with_indifferent_access }
 
-    let(:mocked_class_create) { Accounts::Services::CreateAccountService }
-    let(:mocked_class_deposit) { Accounts::Services::DepositToAccountService }
+    let(:mocked_class_create) { Services::Accounts::CreateAccountService }
+    let(:mocked_class_deposit) { Services::Accounts::DepositToAccountService }
 
     context 'and account does not exit' do
       before do

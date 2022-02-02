@@ -5,7 +5,7 @@ RSpec.describe Services::Events::ResolveEventService do
     let(:perform) { described_class.new(event_type: event_type, request_params: params).resolve }
 
     context 'and strategy exists' do
-      let(:service_class) { Accounts::Services::WithdrawFromAccountService }
+      let(:service_class) { Services::Accounts::WithdrawFromAccountService }
       let(:strategy_class) { Strategies::Events::WithdrawStrategy }
       let(:event_type) { 'withdraw' }
       let(:params) { { "origin" => "-50", "amount" => 5 }.with_indifferent_access }

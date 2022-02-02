@@ -13,8 +13,8 @@ RSpec.describe Strategies::Events::WithdrawStrategy do
     let(:params) { { "origin" => account_id, "amount": amount }.with_indifferent_access }
 
     it 'expects the withdrawal service to be called' do
-      mock_object = instance_double(Accounts::Services::WithdrawFromAccountService)
-      allow(Accounts::Services::WithdrawFromAccountService).to receive(:new).and_return(mock_object)
+      mock_object = instance_double(Services::Accounts::WithdrawFromAccountService)
+      allow(Services::Accounts::WithdrawFromAccountService).to receive(:new).and_return(mock_object)
       allow(mock_object).to receive(:perform)
 
       expect(mock_object)

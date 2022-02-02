@@ -1,7 +1,7 @@
-module Accounts
-  module Services
+module Services
+  module Accounts
     class GetBalanceForAccountService
-      def initialize(account_id)
+      def initialize(account_id:)
 
       end
 

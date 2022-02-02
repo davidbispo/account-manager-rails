@@ -16,9 +16,9 @@ module Strategies
       def execute
         account = ::Account.find(account_id)
         unless account
-          Accounts::Services::CreateAccountService.new(account_id: account_id, balance: amount).perform
+          Services::Accounts::CreateAccountService.new(account_id: account_id, balance: amount).perform
         end
-        @result = Accounts::Services::DepositToAccountService.new(account_id: account_id, amount: amount).perform
+        @result = Services::Accounts::DepositToAccountService.new(account_id: account_id, amount: amount).perform
         self
       end
 

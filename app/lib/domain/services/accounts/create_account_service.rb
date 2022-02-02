@@ -1,5 +1,5 @@
-module Accounts
-  module Services
+module Services
+  module Accounts
 
     class CreateAccountService
       def initialize(account_id:, balance:)

@@ -1,6 +1,7 @@
-module Accounts
-  module Services
-    class DepositToAccountService
+module Services
+  module Accounts
+
+    class WithdrawFromAccountService
       def initialize(account_id:, amount:)
 
       end

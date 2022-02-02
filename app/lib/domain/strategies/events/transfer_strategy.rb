@@ -14,7 +14,7 @@ module Strategies
       end
 
       def execute
-        @result = Accounts::Services::TransferBetweenAccountsService.new(
+        @result = Services::Accounts::TransferBetweenAccountsService.new(
           origin_account_id: origin_account_id,
           destination_account_id: destination_account_id,
           amount: amount,

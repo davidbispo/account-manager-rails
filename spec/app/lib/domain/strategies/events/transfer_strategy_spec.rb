@@ -18,7 +18,7 @@ RSpec.describe Strategies::Events::TransferStrategy do
       "destination_account_id" => destination_account_id
     }.with_indifferent_access }
 
-    let(:mocked_class) { Accounts::Services::TransferBetweenAccountsService }
+    let(:mocked_class) { Services::Accounts::TransferBetweenAccountsService }
 
     it 'expects the transfer service to be called' do
       mock_object = instance_double(mocked_class)
