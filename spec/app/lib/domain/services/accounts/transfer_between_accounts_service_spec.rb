@@ -10,20 +10,22 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
         amount: Faker::Number.number(digits: 2)
       } }
 
-      let(:destination_account) { create(:account) }
-      let(:destination_account_id) { destination_account.id }
-
       context 'and any of the accounts DO NOT exist' do
         let(:origin_account_id) { Faker::Number.number(digits: 9) }
 
+        let!(:destination_account) {
+          Account.all.destroy_all
+          create(:account)
+        }
+        let!(:destination_account_id) { destination_account.id }
+
         before do
           @old_balance = destination_account.balance
-          Account.all.destroy_all
           @result = perform
         end
 
         it 'expects balance on origin account to be untouched' do
-          record = Account.find_by(id: args[:account_id])
+          record = Account.find_by(id: destination_account_id)
           expect(record).not_to be_nil
           expect(record.balance).to eq(@old_balance)
         end
@@ -33,19 +35,26 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
         end
       end
       context 'and all accounts exist' do
-        let(:origin_account) { create(:account) }
+        let(:accounts) {
+          Account.all.destroy_all
+          create_list(:account, 2)
+        }
+
+        let(:origin_account) { accounts.first }
         let(:origin_account_id) { origin_account.id }
+
+        let(:destination_account) { accounts.second }
+        let(:destination_account_id) { destination_account.id }
 
         context 'and transfer is successful' do
           before do
-            Account.all.destroy_all
             @old_balance_origin = origin_account.balance
             @old_balance_destination = destination_account.balance
             @result = perform
           end
 
           it 'expects a confirmation message' do
-            expect(@result['message']).to be('transfer successful')
+            expect(@result['message']).to eq('Transfer successful')
           end
 
           it 'expect balance on origin account to be updated on db' do
@@ -55,23 +64,26 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
           end
 
           it 'expects balance on destination account to be updated on db' do
-            origin_account_record = Account.find_by(id: args[:origin_account_id])
+            origin_account_record = Account.find_by(id: destination_account_id)
             expect(origin_account_record).not_to be_nil
-            expect(origin_account_record.balance).to eq(@old_balance_origin + args[:amount])
+            expect(origin_account_record.balance).to eq(@old_balance_destination + args[:amount])
           end
         end
 
         context 'and transfer fails' do
-          it 'expect balance on origin account to remain untouched' do
-            origin_account_record = Account.find_by(id: args[:origin_account_id])
-            expect(origin_account_record).not_to be_nil
-            expect(origin_account_record.balance).to eq(@old_balance_origin)
+          let(:balance) { Faker::Number.number(digits: 2) }
+          before do
+            @account_double = instance_double(Account)
+            allow(Account).to receive(:find_by).and_return(@account_double)
+            allow(@account_double).to receive(:balance).and_return(balance)
+            allow(@account_double).to receive(:update).and_raise(ActiveRecord::Rollback)
+            @old_balance_origin = origin_account.balance
+            @old_balance_destination = destination_account.balance
+            @result = perform
           end
 
-          it 'expects balance on destination account to remain untouched' do
-            origin_account_record = Account.find_by(id: args[:origin_account_id])
-            expect(origin_account_record).not_to be_nil
-            expect(origin_account_record.balance).to eq(@old_balance_origin)
+          it 'expects an error message' do
+            expect(@result['message']).to eq('Transfer failed')
           end
         end
       end
@@ -85,7 +97,8 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
       } }
 
       it 'expects a return with a validation message' do
-        expect(@result['message']).to eq('Incorrect parameter set')
+        result = perform
+        expect(result['message']).to eq('Incorrect parameter set')
       end
     end
   end

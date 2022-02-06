@@ -18,7 +18,7 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
 
         it 'expects a return with a not found message' do
           result = perform
-          expect(result['message']).to eq('account not found')
+          expect(result['message']).to eq('Account not found')
         end
       end
 
@@ -46,27 +46,16 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
             expect(@result['balance']).to eq(record.balance)
           end
         end
-
-        context 'and balance retrieval raises error' do
-          it 'expects balance on account to remain untouched' do
-            expect(@result['message']).to eq('error on deposit')
-          end
-        end
-      end
-
-      context 'and account DOES NOT exist' do
-        it 'expects a return with a not_found message' do
-          expect(@result['message']).to eq('account not found')
-        end
       end
     end
     context 'and params are NOT correct' do
       let!(:args) { {
-        account_id: Faker::Name.first_name,
+        account_id: [],
       } }
 
       it 'expects a return with a validation message' do
-        expect(@result['message']).to eq('Incorrect parameter set')
+        result = perform
+        expect(result['message']).to eq('Incorrect parameter set')
       end
     end
   end

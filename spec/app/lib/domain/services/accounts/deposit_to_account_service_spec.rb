@@ -14,12 +14,11 @@ RSpec.describe Services::Accounts::DepositToAccountService do
         let(:account_id) { Faker::Number.number(digits: 9) }
         before do
           Account.all.destroy_all
-          @result = perform
         end
 
         it 'expects a return with a not found message' do
           result = perform
-          expect(result['message']).to eq('account not found')
+          expect(result['message']).to eq('Account not found')
         end
       end
 
@@ -27,29 +26,43 @@ RSpec.describe Services::Accounts::DepositToAccountService do
         let!(:account) { create(:account) }
         let!(:account_id) { account.id }
 
-        before do
-          @old_balance = account.balance
-          perform
-        end
-
         context 'and deposit is succcessful' do
+          before do
+            @old_balance = account.balance
+            @result = perform
+          end
+
           it 'updates account balance on db' do
             record = Account.find_by(id: args[:account_id])
             expect(record).not_to be_nil
             expect(record.balance).to eq(@old_balance + args[:amount])
           end
+
+          it 'expects a confirmation echo be returned' do
+            expect(@result['message']).to eq('Deposit successful')
+          end
         end
 
         context 'and deposit is fails' do
+          let(:balance) { account.balance }
+          before do
+            account_double = instance_double(Account)
+            allow(Account).to receive(:find_by).and_return(account_double)
+            allow(account_double).to receive(:balance).and_return(balance)
+            allow(account_double).to receive(:update).and_raise(ActiveRecord::Rollback)
+            @old_balance = account.balance
+            @result = perform
+          end
+
           it 'expects balance on account to remain untouched' do
             record = Account.find_by(id: args[:account_id])
             expect(record).not_to be_nil
             expect(record.balance).to eq(@old_balance)
           end
-        end
 
-        it 'expects a confirmation echo be returned' do
-          expect(@result['message']).to eq('deposit successfully done')
+          it 'expects an error message be returned' do
+            expect(@result['message']).to eq('Deposit failed')
+          end
         end
       end
     end
@@ -61,7 +74,8 @@ RSpec.describe Services::Accounts::DepositToAccountService do
       } }
 
       it 'expects a return with a validation message' do
-        expect(@result['message']).to eq('Incorrect parameter set')
+        result = perform
+        expect(result['message']).to eq('Incorrect parameter set')
       end
     end
   end

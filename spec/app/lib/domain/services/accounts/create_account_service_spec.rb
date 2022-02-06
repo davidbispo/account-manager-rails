@@ -5,20 +5,21 @@ RSpec.describe Services::Accounts::CreateAccountService do
   describe '#perform' do
     context 'and params are correct' do
       context 'and account exists'
-      let(:account) { create(:account) }
-
-      let!(:args) { {
-        account_id: account.id,
-        balance: Faker::Number.number(digits: 2)
-      } }
-
-      after do
+      let!(:account) do
         Account.all.destroy_all
+        create(:account)
       end
+
+      let!(:args) do
+        { account_id: account.id,
+          balance: Faker::Number.number(digits: 2) }
+      end
+
+      after { Account.all.destroy_all }
 
       it 'expects a return with a conflict message' do
         result = perform
-        expect(result['message']).to eq('account already exists')
+        expect(result['message']).to eq('Account already exists')
       end
     end
 
@@ -28,19 +29,33 @@ RSpec.describe Services::Accounts::CreateAccountService do
         balance: Faker::Number.number(digits: 2)
       } }
 
-      before do
-        Account.all.destroy_all
-        @result = perform
+      context 'and account creation is successful' do
+        before do
+          Account.all.destroy_all
+          @result = perform
+        end
+
+        it 'expects account to be on db and balance valid' do
+          record = Account.find_by(id: args[:account_id])
+          expect(record).not_to be_nil
+          expect(record.balance).to eq(args[:balance])
+        end
+
+        it 'expects a confirmation echo be returned' do
+          expect(@result['message']).to eq('Account creation successful')
+        end
       end
 
-      it 'expects account to be on db and balance valid' do
-        record = Account.find_by(id:args[:account_id])
-        expect(record).not_to be_nil
-        expect(record.balance).to eq(args[:balance])
-      end
+      context 'and account creation fails' do
+        before do
+          Account.all.destroy_all
+          allow(Account).to receive(:create!).and_raise(ActiveRecord::Rollback)
+          @result = perform
+        end
 
-      it 'expects a confirmation echo be returned' do
-        expect(@result['message']).to eq('account successfully created')
+        it 'expects a confirmation message' do
+          expect(@result['message']).to eq('Account creation failed')
+        end
       end
     end
   end
