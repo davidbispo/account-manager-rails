@@ -17,8 +17,15 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
         end
 
         it 'expects a return with a not found message' do
-          result = perform
-          expect(result['message']).to eq('Account not found')
+          expect(@result['message']).to eq('Account not found')
+        end
+
+        it 'expects response_status returned to be 404' do
+          expect(@result['response_status']).to eq(404)
+        end
+
+        it 'expects return status to be failed' do
+          expect(@result['status']).to eq('failed')
         end
       end
 
@@ -31,9 +38,7 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
           @result = perform
         end
 
-        after do
-          Account.all.destroy_all
-        end
+        after { Account.all.destroy_all }
 
         context 'and balance retrieval is succcessful' do
           it 'expects no error message' do
@@ -44,6 +49,7 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
             record = Account.find_by(id: args[:account_id])
             expect(record).not_to be_nil
             expect(@result['balance']).to eq(record.balance)
+            expect(@result['status']).to eq('success')
           end
         end
       end
@@ -53,9 +59,20 @@ RSpec.describe Services::Accounts::GetBalanceForAccountService do
         account_id: [],
       } }
 
+      before do
+        @result = perform
+      end
+
       it 'expects a return with a validation message' do
-        result = perform
-        expect(result['message']).to eq('Incorrect parameter set')
+        expect(@result['message']).to eq('Incorrect parameter set')
+      end
+
+      it 'expects response_status returned to be 422' do
+        expect(@result['response_status']).to eq(422)
+      end
+
+      it 'expects return status to be failed' do
+        expect(@result['status']).to eq('failed')
       end
     end
   end

@@ -17,9 +17,11 @@ RSpec.describe Services::Accounts::CreateAccountService do
 
       after { Account.all.destroy_all }
 
-      it 'expects a return with a conflict message' do
+      it 'expects a return 409 with a conflict message' do
         result = perform
         expect(result['message']).to eq('Account already exists')
+        expect(result['response_status']).to eq(409)
+        expect(result['status']).to eq('failed')
       end
     end
 
@@ -41,8 +43,16 @@ RSpec.describe Services::Accounts::CreateAccountService do
           expect(record.balance).to eq(args[:balance])
         end
 
-        it 'expects a confirmation echo be returned' do
+        it 'expects a success message to be returned' do
           expect(@result['message']).to eq('Account creation successful')
+        end
+
+        it 'expects response_status returned to be 201' do
+          expect(@result['response_status']).to eq(201)
+        end
+
+        it 'expects return status to be success' do
+          expect(@result['status']).to eq('success')
         end
       end
 
@@ -53,8 +63,16 @@ RSpec.describe Services::Accounts::CreateAccountService do
           @result = perform
         end
 
-        it 'expects a confirmation message' do
+        it 'expects a success message to be returned' do
           expect(@result['message']).to eq('Account creation failed')
+        end
+
+        it 'expects response_status returned to be 422' do
+          expect(@result['response_status']).to eq(422)
+        end
+
+        it 'expects return status to be failed' do
+          expect(@result['status']).to eq('failed')
         end
       end
     end
@@ -70,8 +88,16 @@ RSpec.describe Services::Accounts::CreateAccountService do
       @result = perform
     end
 
-    it 'expects a return with a validation message' do
+    it 'expects return with a validation message' do
       expect(@result['message']).to eq('Incorrect parameter set')
+    end
+
+    it 'expects response_status returned to be 422' do
+      expect(@result['response_status']).to eq(422)
+    end
+
+    it 'expects return status to be failed' do
+      expect(@result['status']).to eq('failed')
     end
   end
 end

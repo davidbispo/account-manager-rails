@@ -20,6 +20,14 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
         it 'expects a return with a not found message' do
           expect(@result['message']).to eq('Account not found')
         end
+
+        it 'expects response_status returned to be 404' do
+          expect(@result['response_status']).to eq(404)
+        end
+
+        it 'expects return status to be success' do
+          expect(@result['status']).to eq('failed')
+        end
       end
       context 'and account exists' do
         let!(:account) {
@@ -28,8 +36,9 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
         }
         let!(:account_id) { account.id }
 
-        context 'and withdrawal succeeds' do
+        after { Account.all.destroy_all }
 
+        context 'and withdrawal succeeds' do
           before do
             @old_balance = account.balance
             @result = perform
@@ -41,8 +50,16 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
             expect(record.balance).to eq(@old_balance - args[:amount])
           end
 
-          it 'expects a confirmation message' do
+          it 'expects a return with a success message' do
             expect(@result['message']).to eq('Withdrawal successful')
+          end
+
+          it 'expects response_status returned to be 200' do
+            expect(@result['response_status']).to eq(200)
+          end
+
+          it 'expects return status to be success' do
+            expect(@result['status']).to eq('success')
           end
         end
 
@@ -55,8 +72,16 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
             @result = perform
           end
 
-          it 'expects a confirmation message' do
+          it 'expects a return with an error message' do
             expect(@result['message']).to eq('Withdrawal failed')
+          end
+
+          it 'expects response_status returned to be 422' do
+            expect(@result['response_status']).to eq(422)
+          end
+
+          it 'expects return status to be failed' do
+            expect(@result['status']).to eq('failed')
           end
         end
       end
@@ -68,9 +93,16 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
         amount: true
       } }
 
+      before do
+        @result = perform
+      end
+
       it 'expects a return with a validation message' do
-        result = perform
-        expect(result['message']).to eq('Incorrect parameter set')
+        expect(@result['message']).to eq('Incorrect parameter set')
+      end
+
+      it 'expects return status to be failed' do
+        expect(@result['status']).to eq('failed')
       end
     end
   end

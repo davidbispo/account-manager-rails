@@ -24,7 +24,8 @@ module Services
           return account_id.to_i.is_a?(Integer) &&
             amount.to_f.is_a?(Float)
         rescue Exception => e
-          result['status'] = 422
+          result['response_status'] = 422
+          result['status'] = 'failed'
           result['message'] = 'Incorrect parameter set'
           false
         end

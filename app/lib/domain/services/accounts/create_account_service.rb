@@ -13,15 +13,18 @@ module Services
         return result unless validate!
         begin
           if Account.create!(id:account_id, balance:balance)
-            result['status'] = 201
+            result['response_status'] = 201
+            result['status'] = 'success'
             result['message'] = 'Account creation successful'
           end
         rescue ActiveRecord::RecordNotUnique => e
-          result['status'] = 409
+          result['response_status'] = 409
+          result['status'] = 'failed'
           result['message'] = 'Account already exists'
         rescue Exception => e
           #send to monitoring
-          result['status'] = 422
+          result['response_status'] = 422
+          result['status'] = 'failed'
           result['message'] = 'Account creation failed'
         end
         result
@@ -32,8 +35,9 @@ module Services
           return account_id.to_i.is_a?(Integer) &&
             balance.to_f.is_a?(Float)
         rescue Exception => e
-          result['status'] = 422
+          result['response_status'] = 422
           result['message'] = 'Incorrect parameter set'
+          result['status'] = 'failed'
           false
         end
       end

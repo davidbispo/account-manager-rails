@@ -11,11 +11,13 @@ module Services
         return result unless validate!
         account = Account.find_by(id:account_id)
         if account
-          result['status'] = 200
+          result['response_status'] = 200
           result['balance'] = account.balance
+          result['status'] = 'success'
         else
-          result['status'] = 404
+          result['response_status'] = 404
           result['message'] = 'Account not found'
+          result['status'] = 'failed'
         end
         result
       end
@@ -24,8 +26,9 @@ module Services
         begin
           return account_id.to_i.is_a?(Integer)
         rescue Exception => e
-          result['status'] = 422
+          result['response_status'] = 422
           result['message'] = 'Incorrect parameter set'
+          result['status'] = 'failed'
           false
         end
       end

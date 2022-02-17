@@ -14,18 +14,21 @@ module Services
         return result unless validate!
         account = Account.find_by(id: account_id)
         if account.blank?
-          result['status'] = 404
+          result['response_status'] = 404
           result['message'] = 'Account not found'
+          result['status'] = 'failed'
           return result
         else
           ActiveRecord::Base.transaction do
             new_balance = account.balance - amount
             account.update(balance: new_balance)
-            result['status'] = 200
+            result['response_status'] = 200
             result['message'] = 'Withdrawal successful'
+            result['status'] = 'success'
           rescue ActiveRecord::Rollback => e
-            result['status'] = 422
+            result['response_status'] = 422
             result['message'] = 'Withdrawal failed'
+            result['status'] = 'failed'
             return result
             # Send to monitoring
           end
@@ -38,8 +41,9 @@ module Services
           return account_id.to_i.is_a?(Integer) &&
             amount.to_f.is_a?(Float)
         rescue Exception => e
-          result['status'] = 422
+          result['response_status'] = 422
           result['message'] = 'Incorrect parameter set'
+          result['status'] = 'failed'
           false
         end
       end

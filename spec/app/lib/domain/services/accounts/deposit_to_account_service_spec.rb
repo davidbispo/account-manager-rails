@@ -14,17 +14,27 @@ RSpec.describe Services::Accounts::DepositToAccountService do
         let(:account_id) { Faker::Number.number(digits: 9) }
         before do
           Account.all.destroy_all
+          @result = perform
         end
 
         it 'expects a return with a not found message' do
-          result = perform
-          expect(result['message']).to eq('Account not found')
+          expect(@result['message']).to eq('Account not found')
+        end
+
+        it 'expects response_status to be 404' do
+          expect(@result['response_status']).to eq(404)
+        end
+
+        it 'expects return status to be failed' do
+          expect(@result['status']).to eq('failed')
         end
       end
 
       context 'and account DOES exist' do
         let!(:account) { create(:account) }
         let!(:account_id) { account.id }
+
+        after { Account.all.destroy_all }
 
         context 'and deposit is succcessful' do
           before do
@@ -38,12 +48,20 @@ RSpec.describe Services::Accounts::DepositToAccountService do
             expect(record.balance).to eq(@old_balance + args[:amount])
           end
 
-          it 'expects a confirmation echo be returned' do
+          it 'expects a success message be returned' do
             expect(@result['message']).to eq('Deposit successful')
+          end
+
+          it 'expects return status to be 200' do
+            expect(@result['response_status']).to eq(200)
+          end
+
+          it 'expects return status to be success' do
+            expect(@result['status']).to eq('success')
           end
         end
 
-        context 'and deposit is fails' do
+        context 'and deposit fails' do
           let(:balance) { account.balance }
           before do
             account_double = instance_double(Account)
@@ -63,6 +81,14 @@ RSpec.describe Services::Accounts::DepositToAccountService do
           it 'expects an error message be returned' do
             expect(@result['message']).to eq('Deposit failed')
           end
+
+          it 'expects response_status returned to be 422' do
+            expect(@result['response_status']).to eq(422)
+          end
+
+          it 'expects return status to be failed' do
+            expect(@result['status']).to eq('failed')
+          end
         end
       end
     end
@@ -73,9 +99,20 @@ RSpec.describe Services::Accounts::DepositToAccountService do
         amount: true
       } }
 
+      before do
+        @result = perform
+      end
+
       it 'expects a return with a validation message' do
-        result = perform
-        expect(result['message']).to eq('Incorrect parameter set')
+        expect(@result['message']).to eq('Incorrect parameter set')
+      end
+
+      it 'expects response_status returned to be 422' do
+        expect(@result['response_status']).to eq(422)
+      end
+
+      it 'expects return status to be failed' do
+        expect(@result['status']).to eq('failed')
       end
     end
   end

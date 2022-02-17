@@ -19,6 +19,8 @@ RSpec.describe Services::Accounts::CreateOrDepositToAccountService do
           create(:account).id
         }
 
+        after { Account.all.destroy_all }
+
         it 'expects the deposit to account service to be called' do
           mock_object_deposit = instance_double(mocked_class_deposit)
           allow(mocked_class_deposit).to receive(:new).and_return(mock_object_deposit)
@@ -53,6 +55,7 @@ RSpec.describe Services::Accounts::CreateOrDepositToAccountService do
       it 'expects a return with a validation message' do
         result = perform
         expect(result['message']).to eq('Incorrect parameter set')
+        expect(result['status']).to eq('failed')
       end
     end
   end

@@ -18,20 +18,23 @@ module Services
         @destination_account = Account.find_by(id:destination_account_id)
 
         if origin_account.blank? || destination_account.blank?
-          result['status'] = 422
+          result['response_status'] = 422
           result['message'] = 'Invalid accounts parameter set'
+          result['status'] = 'failed'
           return result
         end
         ActiveRecord::Base.transaction do
           new_balances = get_new_balances_after_deposit
           origin_account.update(balance:new_balances.origin)
           destination_account.update(balance:new_balances.destination)
-          result['status'] = 200
+          result['response_status'] = 200
           result['message'] = 'Transfer successful'
+          result['status'] = 'success'
         rescue ActiveRecord::Rollback => e
           #Send to monitoring
-          result['status'] = 500
+          result['response_status'] = 422
           result['message'] = 'Transfer failed'
+          result['status'] = 'failed'
         end
         result
       end
@@ -48,8 +51,9 @@ module Services
             destination_account_id.to_i.is_a?(Integer) &&
             amount.to_f.is_a?(Float)
         rescue Exception => e
-          result['status'] = 422
+          result['response_status'] = 422
           result['message'] = 'Incorrect parameter set'
+          result['status'] = 'failed'
           false
         end
       end

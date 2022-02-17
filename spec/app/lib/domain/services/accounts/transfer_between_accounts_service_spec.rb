@@ -24,21 +24,34 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
           @result = perform
         end
 
+        after { Account.all.destroy_all }
+
         it 'expects balance on origin account to be untouched' do
           record = Account.find_by(id: destination_account_id)
           expect(record).not_to be_nil
           expect(record.balance).to eq(@old_balance)
         end
 
-        it 'expects a an error message be returned' do
+        it 'expects a return with an error message' do
           expect(@result['message']).to eq('Invalid accounts parameter set')
         end
+
+        it 'expects response_status returned to be 422' do
+          expect(@result['response_status']).to eq(422)
+        end
+
+        it 'expects return status to be failed' do
+          expect(@result['status']).to eq('failed')
+        end
       end
+
       context 'and all accounts exist' do
         let(:accounts) {
           Account.all.destroy_all
           create_list(:account, 2)
         }
+
+        after { Account.all.destroy_all }
 
         let(:origin_account) { accounts.first }
         let(:origin_account_id) { origin_account.id }
@@ -53,8 +66,16 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
             @result = perform
           end
 
-          it 'expects a confirmation message' do
+          it 'expects a return with a success message' do
             expect(@result['message']).to eq('Transfer successful')
+          end
+
+          it 'expects response_status returned to be 200' do
+            expect(@result['response_status']).to eq(200)
+          end
+
+          it 'expects return status to be success' do
+            expect(@result['status']).to eq('success')
           end
 
           it 'expect balance on origin account to be updated on db' do
@@ -82,8 +103,16 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
             @result = perform
           end
 
-          it 'expects an error message' do
+          it 'expects a return with an error message' do
             expect(@result['message']).to eq('Transfer failed')
+          end
+
+          it 'expects response_status returned to be 422' do
+            expect(@result['response_status']).to eq(422)
+          end
+
+          it 'expects return status to be failed' do
+            expect(@result['status']).to eq('failed')
           end
         end
       end
@@ -96,9 +125,20 @@ RSpec.describe Services::Accounts::TransferBetweenAccountsService do
         amount: true
       } }
 
+      before do
+        @result = perform
+      end
+
       it 'expects a return with a validation message' do
-        result = perform
-        expect(result['message']).to eq('Incorrect parameter set')
+        expect(@result['message']).to eq('Incorrect parameter set')
+      end
+
+      it 'expects response_status returned to be 422' do
+        expect(@result['response_status']).to eq(422)
+      end
+
+      it 'expects return status to be failed' do
+        expect(@result['status']).to eq('failed')
       end
     end
   end
