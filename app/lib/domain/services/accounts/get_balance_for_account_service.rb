@@ -18,8 +18,9 @@ module Services
           result['response_status'] = 404
           result['message'] = 'Account not found'
           result['status'] = 'failed'
+          result['balance'] = '0'
         end
-        result
+        Hashie::Mash.new(result)
       end
 
       def validate!
