@@ -20,9 +20,9 @@ module Services
           return result
         else
           ActiveRecord::Base.transaction do
-            new_balance = account.balance - amount
+            new_balance = account.balance - amount.to_f
             account.update(balance: new_balance)
-            result['response_status'] = 200
+            result['response_status'] = 201
             result['message'] = 'Withdrawal successful'
             result['status'] = 'success'
           rescue ActiveRecord::Rollback => e

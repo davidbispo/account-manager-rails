@@ -15,18 +15,27 @@ module Strategies
       end
 
       def execute
-        @result = Services::Accounts::WithdrawFromAccountService.new.perform(
+        @result = Services::Accounts::WithdrawFromAccountService.new(
           account_id: account_id,
           amount: amount
-        )
+        ).perform
         self
       end
 
       def response
-        if result
-          res = { status: 200, result: result }
+        if result['status'] == 'failed'
+          res = { status: result['response_status'], message: '0' }
         else
-          res = { status: 500, result: 'error' }
+          res = {
+            status: @result['response_status'],
+            message: {
+              origin:
+                {
+                  id: account_id.to_s,
+                  balance: Account.find(account_id).balance
+                }
+            }
+          }
         end
         Hashie::Mash.new(res)
       end

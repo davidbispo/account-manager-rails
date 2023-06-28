@@ -7,10 +7,7 @@ class ApplicationController < ActionController::API
 
   def check_format
     admit_format = ACCEPTABLE_FORMATS.include?(params[:format])
-    admit_headers = ACCEPTABLE_FORMATS.grep(/#{request.headers['Accept']}/)
-
-    return admit_format  || admit_headers
-
-    render json: 'application must accept json format', status: :not_acceptable
+    return if admit_format
+    return render plain: 'application must accept json format', status: :not_acceptable
   end
 end

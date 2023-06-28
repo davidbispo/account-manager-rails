@@ -8,14 +8,14 @@ RSpec.describe Strategies::Events::TransferStrategy do
   end
 
   describe '#execute' do
-    let(:origin_account_id) { '10' }
-    let(:destination_account_id) { '15' }
+    let(:origin_account_id) { 10 }
+    let(:destination_account_id) { 15 }
     let(:amount) { 5 }
 
     let(:params) { {
-      "origin_account_id" => origin_account_id,
+      "origin" => origin_account_id,
       "amount" => amount,
-      "destination_account_id" => destination_account_id
+      "destination" => destination_account_id
     }.with_indifferent_access }
 
     let(:mocked_class) { Services::Accounts::TransferBetweenAccountsService }

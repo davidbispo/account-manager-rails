@@ -17,8 +17,8 @@ RSpec.describe Strategies::Events::WithdrawStrategy do
       allow(Services::Accounts::WithdrawFromAccountService).to receive(:new).and_return(mock_object)
       allow(mock_object).to receive(:perform)
 
-      expect(mock_object)
-        .to receive(:perform)
+      expect(Services::Accounts::WithdrawFromAccountService)
+        .to receive(:new)
         .with({ account_id:account_id, amount:amount })
       described_class.new(params).execute
     end

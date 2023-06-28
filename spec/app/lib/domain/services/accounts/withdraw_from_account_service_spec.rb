@@ -55,7 +55,7 @@ RSpec.describe Services::Accounts::WithdrawFromAccountService do
           end
 
           it 'expects response_status returned to be 200' do
-            expect(@result['response_status']).to eq(200)
+            expect(@result['response_status']).to eq(201)
           end
 
           it 'expects return status to be success' do

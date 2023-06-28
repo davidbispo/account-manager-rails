@@ -11,34 +11,39 @@ RSpec.describe Services::Events::ResolveEventService do
       let(:params) { { "origin" => "-50", "amount" => 5 }.with_indifferent_access }
 
       context 'and strategy is successfully solved' do
-        let(:expected_status) { 'success' }
+        let(:expected_status) { {'status' => 'success', 'response_status' => 201} }
 
         before do
           mock_object = instance_double(service_class)
           allow(service_class).to receive(:new).and_return(mock_object)
           allow(mock_object).to receive(:perform).and_return(expected_status)
+
+          account_mock = instance_double(Account, balance:Faker::Number.number(digits: 2))
+          allow(Account).to receive(:find).and_return(account_mock)
         end
 
         it 'expects service to invoke strategy and collect response' do
           result_obj = perform
-          expect(result_obj.result).to eq('success')
-          expect(result_obj.status).to eq(200)
+          expect(result_obj.status).to eq(201)
         end
       end
 
       context 'and strategy fails to set data and solve' do
-        let(:expected_status) { false }
+        let(:expected_status) { {'status' => 'failed', 'response_status' => 422} }
 
         before do
           mock_object = instance_double(service_class)
           allow(service_class).to receive(:new).and_return(mock_object)
           allow(mock_object).to receive(:perform).and_return(expected_status)
+
+          account_mock = instance_double(Account, balance:Faker::Number.number(digits: 2))
+          allow(Account).to receive(:find).and_return(account_mock)
+          allow(Account).to receive(:find_by).and_return(account_mock)
         end
 
         it 'expects service to invoke strategy and collect response' do
           result_obj = perform
-          expect(result_obj.result).to eq('error')
-          expect(result_obj.status).to eq(500)
+          expect(result_obj.status).to eq(422)
         end
       end
     end

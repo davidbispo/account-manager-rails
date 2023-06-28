@@ -8,8 +8,8 @@ module Strategies
       end
 
       def initialize(args)
-        @origin_account_id = args["origin_account_id"]
-        @destination_account_id = args["destination_account_id"]
+        @origin_account_id = args["origin"]
+        @destination_account_id = args["destination"]
         @amount = args["amount"]
       end
 
@@ -19,13 +19,25 @@ module Strategies
           destination_account_id: destination_account_id,
           amount: amount,
         ).perform
+        self
       end
 
       def response
-        if result
-          res = { status: 204, result: 'ok' }
+        if result['status'] == 'failed'
+          res = { status: 404, message: '0' }
         else
-          res = { status: 500, result: 'error' }
+          res = {
+            status: @result['response_status'],
+            message: {
+              origin: {
+                id: origin_account_id.to_s,
+                balance: Account.find(origin_account_id).balance
+              },
+              destination:
+                { id: destination_account_id.to_s,
+                  balance: Account.find(destination_account_id).balance
+                }
+            } }
         end
         Hashie::Mash.new(res)
       end

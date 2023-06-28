@@ -53,7 +53,7 @@ RSpec.describe Services::Accounts::DepositToAccountService do
           end
 
           it 'expects return status to be 200' do
-            expect(@result['response_status']).to eq(200)
+            expect(@result['response_status']).to eq(201)
           end
 
           it 'expects return status to be success' do

@@ -27,7 +27,7 @@ module Services
           new_balances = get_new_balances_after_deposit
           origin_account.update(balance:new_balances.origin)
           destination_account.update(balance:new_balances.destination)
-          result['response_status'] = 200
+          result['response_status'] = 201
           result['message'] = 'Transfer successful'
           result['status'] = 'success'
         rescue ActiveRecord::Rollback => e
@@ -40,8 +40,8 @@ module Services
       end
 
       def get_new_balances_after_deposit
-        new_balance_on_origin = origin_account.balance - amount
-        new_balance_on_dest = destination_account.balance + amount
+        new_balance_on_origin = origin_account.balance - amount.to_f
+        new_balance_on_dest = destination_account.balance + amount.to_f
         Hashie::Mash.new( { origin: new_balance_on_origin, destination: new_balance_on_dest })
       end
 
