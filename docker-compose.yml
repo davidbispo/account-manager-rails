@@ -19,9 +19,6 @@ services:
     working_dir: /app
     build: .
     entrypoint: /app/entrypoint.sh
-    volumes:
-      - .:/app
-      - ~/.bash_history:/root/.bash_history
     ports:
       - "3000:3000"
     depends_on:

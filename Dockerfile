@@ -10,6 +10,4 @@ RUN gem install bundler -v 2.0.1
 RUN bundle install
 COPY . .
 
-COPY entrypoint.sh /usr/bin
-
 CMD puma -C config/puma.rb
